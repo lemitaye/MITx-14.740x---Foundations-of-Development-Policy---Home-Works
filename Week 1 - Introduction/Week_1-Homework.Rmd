@@ -9,22 +9,234 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+# Some basic set-up
+library(tidyverse)
+devt <- read_csv("wb_dev_ind.csv")
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+## Question 1
+
+What is the Mean of **GDP per capita**? What is the standard deviation of GDP per capita? (Please round to the nearest whole number. For instance, 1235 would be accepted if the correct answer 1234.56)
+
+### Answer
+
+```{r}
+devt
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+summary(devt)
+```
+
+```{r}
+devt %>% summarise(
+  mean_gdpPc = mean(gdp_per_capita, na.rm = TRUE) %>% round(),
+  sd_gdpPc = sd(gdp_per_capita, na.rm = TRUE) %>% round()
+)
+```
+
+
+## Question 2
+
+What is the mean **illiteracy rate** across all countries? What is the standard deviation? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt %>%
+  mutate(ILliteracy_all = 100 - literacy_all) %>%
+  summarise(
+    mean_ILLit = mean(ILliteracy_all, na.rm = TRUE) %>% round(2),
+    sd_ILLit = sd(ILliteracy_all, na.rm = TRUE) %>% round(2)
+  )
+```
+
+## Question 3
+
+What is the mean **infant mortality rate** across all countries? What is the standard deviation? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt %>%
+  summarise(
+    mean_INF_mortal = mean(infant_mortality, na.rm = TRUE) %>% round(2),
+    sd_INF_mortal = sd(infant_mortality, na.rm = TRUE) %>% round(2)
+  )
+```
+
+## Question 4
+
+What is the mean male illiteracy rate? What is the mean female illiteracy rate? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt %>%
+  mutate(
+    ILLit_male = 100 - literacy_male,
+    ILLit_female = 100 - literacy_female
+  ) %>%
+  summarise(
+    mean_ILLit_male = mean(ILLit_male, na.rm = TRUE) %>% round(2),
+    mean_ILLit_female = mean(ILLit_female, na.rm = TRUE) %>% round(2)
+  )
+```
+
+---
+For questions 5 to 8, restrict your dataset to countries for which we have GDP per capita information.
+
+---
+
+```{r}
+devt_gdp <- devt %>%
+  filter(!is.na(gdp_per_capita))
+```
+
+## Question 5
+
+What are the mean, minimum, and maximum **illiteracy rate** among the 50 richest countries? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt_gdp %>%
+  arrange(desc(gdp_per_capita)) %>%
+  filter(row_number() <= 50) %>%
+  mutate(ILLiteracy_all = 100 - literacy_all) %>%
+  summarise(
+    mean_ILLit_rich = mean(ILLiteracy_all, na.rm = TRUE) %>% round(2),
+    min_ILLit_rich = min(ILLiteracy_all, na.rm = TRUE) %>% round(2),
+    max_ILLit_rich = max(ILLiteracy_all, na.rm = TRUE) %>% round(2)
+  )
+```
+
+## Question 6
+
+What are the mean, minimum, and maximum **illiteracy rate** among the 50 poorest countries? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt_gdp %>%
+  arrange(gdp_per_capita) %>%
+  filter(row_number() <= 50) %>%
+  mutate(ILLiteracy_all = 100 - literacy_all) %>%
+  summarise(
+    mean_ILLit_poor = mean(ILLiteracy_all, na.rm = TRUE) %>% round(2),
+    min_ILLit_poor = min(ILLiteracy_all, na.rm = TRUE) %>% round(2),
+    max_ILLit_poor = max(ILLiteracy_all, na.rm = TRUE) %>% round(2)
+  )
+```
+
+## Question 7
+
+What are the mean, minimum, and maximum **infant mortality rate** among the 50 richest countries? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt_gdp %>%
+  arrange(desc(gdp_per_capita)) %>%
+  filter(row_number() <= 50) %>%
+  summarise(
+    mean_INFmortal_rich = mean(infant_mortality, na.rm = TRUE) %>% round(2),
+    min_INFmortal_rich = min(infant_mortality, na.rm = TRUE) %>% round(2),
+    max_INFmortal_rich = max(infant_mortality, na.rm = TRUE) %>% round(2)
+  )
+```
+
+## Question 8
+
+What are the mean, minimum, and maximum infant mortality rate among the 50 poorest countries? (Please round to the nearest hundredth. For instance, 67.89 would be accepted if the correct answer is 67.8912)
+
+### Answer
+
+```{r}
+devt_gdp %>%
+  arrange(gdp_per_capita) %>%
+  filter(row_number() <= 50) %>%
+  summarise(
+    mean_INFmortal_poor = mean(infant_mortality, na.rm = TRUE) %>% round(2),
+    min_INFmortal_poor = min(infant_mortality, na.rm = TRUE) %>% round(2),
+    max_INFmortal_poor = max(infant_mortality, na.rm = TRUE) %>% round(2)
+  )
+```
+
+---
+
+For questions 9-15, return to using the original (unrestricted) data set.
+
+---
+
+## Question 9
+
+What is the **median** GDP per capita? (Please round to the nearest whole number.)
+
+### Answer
+
+```{r}
+devt %>%
+  summarise(median_gdpPc = median(gdp_per_capita, na.rm = TRUE) %>% round())
+```
+
+## Question 10
+
+Regress the infant mortality rate on per capita GDP, and then answer questions 10-12.
+
+### Answer
+
+```{r}
+lm(infant_mortality ~ gdp_per_capita, data = devt) %>% summary()
+```
+
+## Question 13
+
+Regress the illiteracy rate on GDP per capita. Is the coefficient on per capita GDP significantly different from zero at the 5% level?
+
+### Answer
+
+```{r}
+lm(I(100 - literacy_all) ~ gdp_per_capita, data = devt) %>% summary()
+```
+
+## Question 14
+
+Regress the infant mortality rate on the illiteracy rate. Graph a scatter plot of the data as well as the regression line.
+
+### Answer
+
+```{r}
+lm(infant_mortality ~ I(100 - literacy_all), data = devt) %>% summary()
+```
+
+```{r}
+devt %>%
+  mutate(ILLiteracy_rate = 100 - literacy_all) %>%
+  ggplot(aes(ILLiteracy_rate, infant_mortality)) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = "lm")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
