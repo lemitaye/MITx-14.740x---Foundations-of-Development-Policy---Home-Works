@@ -6,33 +6,8 @@ Lemi Daba
 ``` r
 # Some basic set-up
 library(tidyverse)
-```
-
-    ## -- Attaching packages -------------------------------------------- tidyverse 1.3.0 --
-
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.3     v dplyr   1.0.1
-    ## v tidyr   1.1.1     v stringr 1.4.0
-    ## v readr   1.3.1     v forcats 0.5.0
-
-    ## -- Conflicts ----------------------------------------------- tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
 devt <- read_csv("wb_dev_ind.csv")
 ```
-
-    ## Parsed with column specification:
-    ## cols(
-    ##   countrycode = col_character(),
-    ##   countryname = col_character(),
-    ##   gdp_per_capita = col_double(),
-    ##   literacy_female = col_double(),
-    ##   literacy_male = col_double(),
-    ##   literacy_all = col_double(),
-    ##   infant_mortality = col_double()
-    ## )
 
 Question 1
 ----------
@@ -43,25 +18,24 @@ instance, 1235 would be accepted if the correct answer 1234.56)
 
 ### Answer
 
+Preliminary view of the raw data (first 10 observations).
+
 ``` r
-devt
+knitr::kable(devt[1:10, ])
 ```
 
-    ## # A tibble: 214 x 7
-    ##    countrycode countryname gdp_per_capita literacy_female literacy_male
-    ##    <chr>       <chr>                <dbl>           <dbl>         <dbl>
-    ##  1 ABW         Aruba               19913.            96.7          96.9
-    ##  2 ADO         Andorra             35628.            NA            NA  
-    ##  3 AFG         Afghanistan           415.            17.6          45.4
-    ##  4 AGO         Angola               2738.            59.1          82.5
-    ##  5 ALB         Albania              4091.            95.7          98.0
-    ##  6 ARE         United Ara~         25141.            91.5          89.5
-    ##  7 ARG         Argentina            6195.            98.0          97.9
-    ##  8 ARM         Armenia              2310.            99.5          99.7
-    ##  9 ASM         American S~            NA             NA            NA  
-    ## 10 ATG         Antigua an~         11481.            99.4          98.4
-    ## # ... with 204 more rows, and 2 more variables: literacy_all <dbl>,
-    ## #   infant_mortality <dbl>
+| countrycode | countryname          | gdp\_per\_capita | literacy\_female | literacy\_male | literacy\_all | infant\_mortality |
+|:------------|:---------------------|-----------------:|-----------------:|---------------:|--------------:|------------------:|
+| ABW         | Aruba                |       19912.7570 |         96.71978 |       96.94053 |      96.82264 |                NA |
+| ADO         | Andorra              |       35628.4110 |               NA |             NA |            NA |               2.2 |
+| AFG         | Afghanistan          |         415.0035 |         17.61206 |       45.41710 |      31.74112 |              70.2 |
+| AGO         | Angola               |        2737.8771 |         59.14755 |       82.47483 |      70.58037 |             101.6 |
+| ALB         | Albania              |        4090.8649 |         95.69148 |       98.00816 |      96.84530 |              13.3 |
+| ARE         | United Arab Emirates |       25140.7570 |         91.47475 |       89.48210 |      90.03384 |               7.0 |
+| ARG         | Argentina            |        6195.3849 |         97.95025 |       97.87950 |      97.91609 |              11.9 |
+| ARM         | Armenia              |        2309.7085 |         99.50077 |       99.71891 |      99.60995 |              14.0 |
+| ASM         | American Samoa       |               NA |               NA |             NA |            NA |                NA |
+| ATG         | Antigua and Barbuda  |       11481.3850 |         99.42000 |       98.40000 |      98.95000 |               7.7 |
 
 ``` r
 summary(devt)
