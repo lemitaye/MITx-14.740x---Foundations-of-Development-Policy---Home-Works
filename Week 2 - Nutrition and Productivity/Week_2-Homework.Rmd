@@ -1,0 +1,17 @@
+---
+title: "Week 1 Homework, Unit 2"
+author: "Lemi Daba"
+date: "2/14/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+# Some basic set-up
+library(tidyverse)
+devt <- read_csv("wb_dev_ind.csv")
+```
