@@ -1,7 +1,7 @@
 ---
-title: "Week 1 Homework, Unit 2"
+title: "Week 2 Homework, Unit 1"
 author: "Lemi Daba"
-date: "2/14/2021"
+date: "2/18/2021"
 output: github_document
 ---
 
@@ -13,5 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r message=FALSE, warning=FALSE}
 # Some basic set-up
 library(tidyverse)
-devt <- read_csv("wb_dev_ind.csv")
+nutrition <- read_csv("nutrition_csv.csv")
 ```
+
