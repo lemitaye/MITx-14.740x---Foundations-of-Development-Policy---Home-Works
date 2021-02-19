@@ -191,6 +191,8 @@ of taking the pill on school attendance.
 
 ### Answer
 
+FALSE.
+
 There are students in schools assigned to deworming but did not get the
 pill:
 
@@ -216,3 +218,68 @@ nutrition %>%
 
 Hence, the above estimate didn’t take into the account the spillover
 effect and hence is likely biased.
+
+Question 13
+-----------
+
+Using the data, find and enter the difference in outcomes (Y: school
+participation) between students in treatment schools and students not in
+treatment schools in 1998, regardless of whether or not they actually
+took the pill. (Enter your answer as a difference in proportions. For
+instance, if the proportion in one group is 0.61 and the proportion in
+the other group is 0.54, enter 0.07. Answers within 0.05 of the correct
+answer will be accepted. For instance, 0.28 would be accepted if the
+correct answer is 0.33.)
+
+### Answer
+
+``` r
+nutrition %>%
+  filter(!is.na(totpar98) & !is.na(treat_sch98)) %>%
+  group_by(treat_sch98) %>%
+  summarise(avg_partic = mean(totpar98)) %>%
+  ungroup() %>%
+  mutate(
+    diff = round(avg_partic[treat_sch98 == 1] - avg_partic[treat_sch98 == 0], 3)
+  )
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+    ## # A tibble: 2 x 3
+    ##   treat_sch98 avg_partic  diff
+    ##         <dbl>      <dbl> <dbl>
+    ## 1           0      0.730   0.1
+    ## 2           1      0.830   0.1
+
+Question 14
+-----------
+
+Using the data, calculate the difference in the probability of taking
+the pill given that a student was in a treatment school and the
+probability of taking it if a student was not in a treatment school in
+1998. (Enter your answer as a difference in proportions. For instance,
+if the proportion in one group is 0.61 and the proportion in the other
+group is 0.54, enter 0.07. Answers within 0.05 of the correct answer
+will be accepted. For instance, 0.28 would be accepted if the correct
+answer is 0.33.)
+
+### Answer
+
+``` r
+nutrition %>%
+  filter(!is.na(pill98) & !is.na(treat_sch98)) %>%
+  group_by(treat_sch98) %>%
+  summarise(treatrate = mean(pill98)) %>%
+  mutate(
+    diff = round(treatrate[treat_sch98 == 1] - treatrate[treat_sch98 == 0], 3)
+  )
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+    ## # A tibble: 2 x 3
+    ##   treat_sch98 treatrate  diff
+    ##         <dbl>     <dbl> <dbl>
+    ## 1           0     0     0.668
+    ## 2           1     0.668 0.668
