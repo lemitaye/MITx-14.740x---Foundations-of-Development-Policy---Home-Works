@@ -16,3 +16,117 @@ library(tidyverse)
 nutrition <- read_csv("nutrition_csv.csv")
 ```
 
+## Question 6
+
+For most pupils, how many observations are there per pupil? (Enter a whole number of 0 or higher)
+
+### Answer
+
+```{r}
+nutrition %>% 
+    count(pupid, name = "Times_appeared") %>% 
+    count(Times_appeared, name = "count")
+```
+
+
+## Question 7
+
+What percentage of the pupils are boys? (Answers within 0.50 percentage points of the correct answer will be accepted. For instance, 67 would be accepted if the correct answer is 67.45%)
+
+### Answer
+
+```{r}
+nutrition %>% 
+    count(sex) %>% 
+    filter(!is.na(sex)) %>% 
+    mutate("prop (%)" = (n*100/sum(n)) %>% round(2) )
+```
+
+
+## Question 8
+
+What percentage of pupils took the deworming pill in 1998? (Answers within 0.50 percentage points of the correct answer will be accepted. For instance, 67 would be accepted if the correct answer is 67.45%)
+
+### Answer
+
+```{r}
+nutrition %>% 
+    count(pill98) %>% 
+    filter(!is.na(pill98)) %>% 
+    mutate("prop (%)" = (n*100/sum(n)) %>% round(2) )
+```
+
+
+## Question 9
+
+Was the percentage of schools assigned to treatment in 1998 greater than or less than the percentage of pupils that actually took the deworming pill in 1998?
+
+### Answer
+
+```{r}
+nutrition %>%
+  summarise(
+    sch_assign98 = (mean(treat_sch98, na.rm = TRUE) * 100) %>% round(2),
+    pupil_deworm98 = (mean(pill98, na.rm = TRUE) * 100) %>% round(2),
+  )
+```
+
+## Question 10
+
+Which of the following variables from the dataset are dummy variables? (Check all that apply.)
+
+
+### Answer
+
+```{r}
+summary(nutrition)
+```
+From the above summary, variable with a minimum of 0 and a maximum of 1 are the following:
+
+    * `pill98`
+    
+    * `pill99`
+    
+    * `sex`
+    
+    * `old_girl98`
+    
+    * `treat_sch98`
+    
+    * `infect_early99`
+
+The variable `totpar98` also has a minimum of 0 and a maximum of 1, but it is not a dummy variable (it is a proportion, expressed as a fraction between 0 and 1).
+
+
+## Question 11
+
+Using the data, find and enter the difference in outcomes (Y: school participation) between students who took the pill and students who did not in 1998. (Enter your answer as a difference in proportions. For instance, if the proportion in one group is 0.61 and the proportion in the other group is 0.54, enter 0.07. Answers within 0.05 of the correct answer will be accepted. For instance, 0.28 would be accepted if the correct answer is 0.33.)
+
+### Answer
+
+```{r}
+nutrition %>%
+  filter(!is.na(totpar98) & !is.na(pill98)) %>%
+  group_by(pill98) %>%
+  summarise(avg_partic = mean(totpar98)) %>%
+  ungroup() %>%
+  mutate(diff = round(avg_partic[pill98 == 1] - avg_partic[pill98 == 0], 3))
+```
+
+
+## Question 12
+
+Since schools were randomly assigned to the deworming treatment group, the estimate calculated in the previous answer is an unbiased estimate of taking the pill on school attendance.
+
+### Answer
+
+There are students in schools assigned to deworming but did not get the pill:
+
+```{r}
+nutrition %>% 
+    filter((pill98 == 0) & (treat_sch98 == 1))
+```
+
+
+Hence, the above estimate didn't take into the account the spillover effect and hence is likely biased.
+
