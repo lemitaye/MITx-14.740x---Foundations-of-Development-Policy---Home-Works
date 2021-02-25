@@ -1,0 +1,22 @@
+---
+title: "Week 3 Homework, Unit 1"
+author: "Lemi Daba"
+date: "2/25/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+# Some basic set-up
+library(dummies)
+library(AER)
+library(tidyverse)
+
+# Load the data
+inpres <- read_csv("inpres_data_corrected.csv")
+```
+
