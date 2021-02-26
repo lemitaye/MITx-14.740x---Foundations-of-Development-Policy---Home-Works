@@ -40,7 +40,7 @@ First we will estimate the impact of the program on educational attainment using
 ```{r message=FALSE}
 summ <- inpres %>%
   mutate(born_aft68 = (birth_year >= 68)) %>%
-  group_by(born_aft68, high_intensity) %>%
+  group_by(high_intensity, born_aft68) %>%
   summarise(mean_educ = mean(education))
 
 summ
@@ -51,18 +51,18 @@ summ
 X <- cbind(
   c(
     summ$mean_educ[4],
-    summ$mean_educ[2],
-    summ$mean_educ[4] - summ$mean_educ[2]
-  ),
-  c(
     summ$mean_educ[3],
-    summ$mean_educ[1],
-    summ$mean_educ[3] - summ$mean_educ[1]
+    summ$mean_educ[4] - summ$mean_educ[3]
   ),
   c(
-    summ$mean_educ[4] - summ$mean_educ[3],
-    summ$mean_educ[2] - summ$mean_educ[1],
-    (summ$mean_educ[4] - summ$mean_educ[2]) - (summ$mean_educ[3] - summ$mean_educ[1])
+    summ$mean_educ[2],
+    summ$mean_educ[1],
+    summ$mean_educ[2] - summ$mean_educ[1]
+  ),
+  c(
+    summ$mean_educ[4] - summ$mean_educ[2],
+    summ$mean_educ[3] - summ$mean_educ[1],
+    (summ$mean_educ[4] - summ$mean_educ[3]) - (summ$mean_educ[2] - summ$mean_educ[1])
   )
 )
 
@@ -127,14 +127,10 @@ What is the DD estimate of the effect of the program on education? (Please round
 ### Answer
 
 ```{r message=FALSE}
-summ2 <- inpres %>% 
-  mutate(born_aft68 = (birth_year >= 68)) %>%
-  group_by(high_intensity, born_aft68) %>%
-  summarise(mean_educ = mean(education)) 
-  
-DD_est <- (summ2$mean_educ[4] - summ2$mean_educ[3]) - (summ2$mean_educ[2] - summ2$mean_educ[1])
+DD_est <- (summ$mean_educ[4] - summ$mean_educ[3]) - (summ$mean_educ[2] - summ$mean_educ[1])
 DD_est %>% round(2)
 ```
+
 
 
 

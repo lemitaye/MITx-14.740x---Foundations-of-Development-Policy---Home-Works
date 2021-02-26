@@ -63,37 +63,37 @@ instance, 67.89 would be accepted if the correct answer is 67.8912.)
 ``` r
 summ <- inpres %>%
   mutate(born_aft68 = (birth_year >= 68)) %>%
-  group_by(born_aft68, high_intensity) %>%
+  group_by(high_intensity, born_aft68) %>%
   summarise(mean_educ = mean(education))
 
 summ
 ```
 
     ## # A tibble: 4 x 3
-    ## # Groups:   born_aft68 [2]
-    ##   born_aft68 high_intensity mean_educ
-    ##   <lgl>               <dbl>     <dbl>
-    ## 1 FALSE                   0      9.73
-    ## 2 FALSE                   1      8.48
-    ## 3 TRUE                    0     10.1 
-    ## 4 TRUE                    1      8.94
+    ## # Groups:   high_intensity [2]
+    ##   high_intensity born_aft68 mean_educ
+    ##            <dbl> <lgl>          <dbl>
+    ## 1              0 FALSE           9.73
+    ## 2              0 TRUE           10.1 
+    ## 3              1 FALSE           8.48
+    ## 4              1 TRUE            8.94
 
 ``` r
 X <- cbind(
   c(
     summ$mean_educ[4],
-    summ$mean_educ[2],
-    summ$mean_educ[4] - summ$mean_educ[2]
-  ),
-  c(
     summ$mean_educ[3],
-    summ$mean_educ[1],
-    summ$mean_educ[3] - summ$mean_educ[1]
+    summ$mean_educ[4] - summ$mean_educ[3]
   ),
   c(
-    summ$mean_educ[4] - summ$mean_educ[3],
-    summ$mean_educ[2] - summ$mean_educ[1],
-    (summ$mean_educ[4] - summ$mean_educ[2]) - (summ$mean_educ[3] - summ$mean_educ[1])
+    summ$mean_educ[2],
+    summ$mean_educ[1],
+    summ$mean_educ[2] - summ$mean_educ[1]
+  ),
+  c(
+    summ$mean_educ[4] - summ$mean_educ[2],
+    summ$mean_educ[3] - summ$mean_educ[1],
+    (summ$mean_educ[4] - summ$mean_educ[3]) - (summ$mean_educ[2] - summ$mean_educ[1])
   )
 )
 
@@ -190,12 +190,7 @@ this is an unbiased estimate in this case?*
 ### Answer
 
 ``` r
-summ2 <- inpres %>% 
-  mutate(born_aft68 = (birth_year >= 68)) %>%
-  group_by(high_intensity, born_aft68) %>%
-  summarise(mean_educ = mean(education)) 
-  
-DD_est <- (summ2$mean_educ[4] - summ2$mean_educ[3]) - (summ2$mean_educ[2] - summ2$mean_educ[1])
+DD_est <- (summ$mean_educ[4] - summ$mean_educ[3]) - (summ$mean_educ[2] - summ$mean_educ[1])
 DD_est %>% round(2)
 ```
 
