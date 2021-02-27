@@ -381,3 +381,59 @@ stargazer::stargazer(modiv, type = "text")
 
 As can be seen, the coefficient on education from this iv regression is
 the same as the Wald estimate obtained from question 10.
+
+Question 13
+-----------
+
+Next we will run an IV regression with a continuous experiment and
+controls as in the table titled “Effect of education on labor market
+outcomes. OLS and 2SLS estimates” in the paper. (Table 7 in the AER
+version, table 6 in the version linked to from the course webpage).
+
+To do so, first generate the instrument by interacting the number of new
+schools built in one’s district with the dummy for being of age to be
+exposed. Next generate control variables to remove unwanted variation
+from the estimation. Generate the following control variables:
+
+1.  Dummy variables for each possible year of birth
+
+2.  Dummy variables for each possible district of birth
+
+3.  A variable interacting the dummy for age exposure with the number of
+    children in the district in 1971.
+
+Run the IV regression on schooling with the instrument and the controls
+you have created (you do not need to include any other variables). What
+is the coefficient? (Please round to three decimal places).
+
+*Thought exercise: What does the result tell us about the effect of an
+extra year of schooling on earnings? Is it statistically significant?
+How does it compare to the relationship found in question 1?*
+
+### Answer
+
+``` r
+modiv2 <- ivreg(
+  log_wage ~ education + as.factor(birth_year) + as.factor(birth_region) + young:children71 | young:num_schools + as.factor(birth_year) + as.factor(birth_region) + young:children71,
+  data = inpres
+)
+
+stargazer::stargazer(modiv2, type = "text", keep = c("ed"))
+```
+
+    ## 
+    ## ===============================================
+    ##                         Dependent variable:    
+    ##                     ---------------------------
+    ##                              log_wage          
+    ## -----------------------------------------------
+    ## education                     0.076**          
+    ##                               (0.030)          
+    ##                                                
+    ## -----------------------------------------------
+    ## Observations                  45,624           
+    ## R2                             0.337           
+    ## Adjusted R2                    0.333           
+    ## Residual Std. Error     0.552 (df = 45315)     
+    ## ===============================================
+    ## Note:               *p<0.1; **p<0.05; ***p<0.01
