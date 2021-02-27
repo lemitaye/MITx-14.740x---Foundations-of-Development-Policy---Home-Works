@@ -127,9 +127,145 @@ What is the DD estimate of the effect of the program on education? (Please round
 ### Answer
 
 ```{r message=FALSE}
+# You need the 'summ' tibble from Question 3
 DD_est <- (summ$mean_educ[4] - summ$mean_educ[3]) - (summ$mean_educ[2] - summ$mean_educ[1])
 DD_est %>% round(2)
 ```
+
+## Question 7
+
+Now create a similar table, this time for log earnings instead of education. What is the DD estimate of the effect of the program on log earnings? (Please round to the nearest thousandth. For example, 67.891 would be accepted if the correct answer is 67.8912.)
+
+
+### Answer
+
+```{r message=FALSE}
+summ2 <- inpres %>%
+  mutate(born_aft68 = (birth_year >= 68)) %>%
+  group_by(high_intensity, born_aft68) %>%
+  summarise(mean_lwage = mean(log_wage))
+
+summ2
+```
+
+
+```{r}
+Y <- cbind(
+  c(
+    summ2$mean_lwage[4],
+    summ2$mean_lwage[3],
+    summ2$mean_lwage[4] - summ2$mean_lwage[3]
+  ),
+  c(
+    summ2$mean_lwage[2],
+    summ2$mean_lwage[1],
+    summ2$mean_lwage[2] - summ2$mean_lwage[1]
+  ),
+  c(
+    summ2$mean_lwage[4] - summ2$mean_lwage[2],
+    summ2$mean_lwage[3] - summ2$mean_lwage[1],
+    (summ2$mean_lwage[4] - summ2$mean_lwage[3]) - (summ2$mean_lwage[2] - summ2$mean_lwage[1])
+  )
+)
+
+colnames(Y) <- c(
+  "High Intensity (Treatment)",
+  "Low Intensity (Control)",
+  "Difference (Treatment-Control)"
+)
+
+rownames(Y) <- c(
+  "**Young (Born 1968 or later)**",
+  "**Old (Born before 1968)**",
+  "**Difference (Young - Old)**"
+)
+
+knitr::kable(Y, digits = 3)
+```
+
+The difference-in-difference estimate is `r round( (summ2$mean_lwage[4] - summ2$mean_lwage[3]) - (summ2$mean_lwage[2] - summ2$mean_lwage[1]), 3)`.
+
+
+## Question 10
+
+Run the DD regressions for estimating the impact of the program on education. Run the DD regression for estimating the impact of the program on log earnings. Using the resulting output, what is the Wald estimate of the effect of education on log earnings, using INPRES exposure as the instrument? (Please round to three decimal places.)
+
+*Thought exercise: What additional assumptions (in addition to those mentioned in question 6) are required to interpret the Wald estimate as a causal relationship? Do you think this is an unbiased estimate in this case?*
+
+
+### Answer
+
+```{r}
+inpres <- inpres %>% 
+  mutate(young = (birth_year >= 68))
+
+mod1 <- lm(education ~ high_intensity*young, data = inpres)
+mod2 <- lm(log_wage ~ high_intensity*young, data = inpres)
+
+stargazer::stargazer(mod1, mod2, type = "text")
+```
+
+```{r}
+wald_est <- coef(mod2)[["high_intensity:youngTRUE"]]/coef(mod1)[["high_intensity:youngTRUE"]]
+```
+
+The Wald estimate is `r round(wald_est, 3)`. 
+
+## Question 11
+
+We can also compute the Wald estimate using IV regression. In an IV-DD setup, the two main effect terms (i.e. program intensity and age of exposure) are included as controls, and the variable representing the treatment (i.e. the interaction term) is used as the instrument.
+
+
+where $ \delta_{2} $ is the first-stage effect of the program on schooling and δ1 is our IV estimate of the causal effect of schooling on log earnings. Hint: use ivreg() in R.
+
+Run the regression corresponding to this Wald estimate and confirm that it returns the same value. What is the coefficient, and what is the standard error? (Please provide your answer to three decimal places.)
+
+
+### Answer
+
+```{r warning=FALSE}
+modiv <- ivreg(
+  log_wage ~ education + high_intensity + young | high_intensity + young + high_intensity:young, data = inpres
+)
+
+stargazer::stargazer(modiv, type = "text")
+```
+
+As can be seen, the coefficient on education from this iv regression is the same as the Wald estimate obtained from question 10.
+
+
+## Question 13
+
+Next we will run an IV regression with a continuous experiment and controls as in the table titled “Effect of education on labor market outcomes. OLS and 2SLS estimates” in the paper. (Table 7 in the AER version, table 6 in the version linked to from the course webpage).
+
+To do so, first generate the instrument by interacting the number of new schools built in one’s district with the dummy for being of age to be exposed. Next generate control variables to remove unwanted variation from the estimation. Generate the following control variables:
+
+1. Dummy variables for each possible year of birth
+
+2. Dummy variables for each possible district of birth
+
+3. A variable interacting the dummy for age exposure with the number of children in the district in 1971.
+
+Run the IV regression on schooling with the instrument and the controls you have created (you do not need to include any other variables). What is the coefficient? (Please round to three decimal places).
+
+*Thought exercise: What does the result tell us about the effect of an extra year of schooling on earnings? Is it statistically significant? How does it compare to the relationship found in question 1?*
+
+
+### Answer
+
+```{r message=FALSE, warning=FALSE}
+modiv2 <- ivreg(
+  log_wage ~ education + as.factor(birth_year) + as.factor(birth_region) + young:children71 | young:num_schools + as.factor(birth_year) + as.factor(birth_region) + young:children71,
+  data = inpres
+)
+
+stargazer::stargazer(modiv2, type = "text", keep = c("ed"))
+```
+
+
+
+
+
 
 
 
