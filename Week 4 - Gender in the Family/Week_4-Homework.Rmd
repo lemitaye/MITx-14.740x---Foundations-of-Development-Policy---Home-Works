@@ -1,0 +1,155 @@
+---
+title: "Week 4 Homework, Unit 1"
+author: "Lemi Daba"
+date: "3/7/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lfe)
+library(stargazer)
+
+tea_data <- read_csv("tea_data_corrected.csv")
+```
+
+
+## Question 1
+
+First, lets understand the data structure. What describes the unit of observation in the data?
+
+
+### Answer
+
+```{r}
+tea_data 
+```
+
+It appears each observation represents a cohort in each county.
+
+```{r}
+tea_data %>% count(admin, biryr)
+```
+
+The above result strengthens our suspicion (the number of observations and the number of unique county-cohort combination is the same). To confirm, let's see if there is more than one observation in any county-cohort combination:
+
+```{r}
+tea_data %>% 
+    count(admin, biryr) %>% 
+    filter(n > 1)
+```
+
+Hence, we can now be sure that each observation represents a particular cohort in a given county.
+
+
+## Question 4a
+
+Now, generate the variable `teaDum`, which takes value 1 if any amount of tea is sown and 0 otherwise. Generate the variable `post`, which takes a value of 1 if the cohort is born on or after 1979. To be sure that you generated this variables correctly, the mean of `teaDum` is 0.209 and mean of `post` is 0.412. Now, also generate the interaction term.
+
+Estimate $ \gamma $ from the data. Give its point estimate and the standard error.
+
+
+### Answer
+
+```{r}
+tea_data <- tea_data %>%
+  mutate(
+    teaDum = (teasown > 0),
+    post = (biryr >= 1979)
+  ) 
+
+tea_data %>%
+  summarise(
+    mean_tea = mean(teaDum, na.rm = TRUE),
+    mean_post = mean(post, na.rm = TRUE)
+  )
+```
+
+
+We now estimate the model in Question 2.
+
+```{r message=FALSE, warning=FALSE}
+reg1 <- lm(sex ~ teaDum*post, data = tea_data)
+
+stargazer(reg1, type = "text", digits = 5)
+```
+
+## Question 6a
+
+Now generate variables `orchardDum` and `cashcropDum` in a way similar to `teaDum` (that is, they take value 1 if the crop is grown and 0 otherwise). Also, generate the interactions with post. Estimate the following regression:
+
+$$
+ S_{ij} = \alpha + \beta_1TeaDum_i + \beta_2OrchardDum_i + \beta_3cashcropDum_i + \gamma_1(TeaDum_i\times Post_i) + ...
+$$
+
+What are the point estimates for each of $ \gamma_1 $, $ \gamma_2 $, and $ \gamma_3 $?
+
+### Answer
+
+```{r message=FALSE, warning=FALSE}
+tea_data <- tea_data %>%
+  mutate(
+    orchardDum = (orch > 0),
+    cashcropDum = (cashcrop > 0)
+  )
+
+reg2 <- lm(
+  sex ~ (teaDum + orchardDum + cashcropDum) * post,
+  data = tea_data
+)
+
+stargazer(reg2, type = "text", digits = 6)
+```
+
+## Question 8
+
+Now instead of grouping all the pre- and post-cohorts and grouping all the counties into two groups (those who grow and don't), let's exploit all the variation in the data. That is, let us estimate:
+
+...
+
+What is the estimate of $ \gamma_1 $ from this model? (Please provide your answer to 3 significant figures.) Does this change the conclusion from the previous regressions?
+
+### Answer
+
+```{r}
+reg3a <- felm(
+  sex ~ I(post * teaDum) + I(post * orchardDum) + I(post * cashcropDum) | admin + biryr,
+  data = tea_data
+)
+
+stargazer(reg3a, type = "text")
+```
+
+Let's try it the old way (this takes longer).
+
+```{r}
+reg3b <- lm(
+  sex ~ I(post * teaDum) + I(post * orchardDum) + I(post * cashcropDum) + as.factor(admin) + as.factor(biryr),
+  data = tea_data
+)
+
+stargazer(reg3b, type = "text", keep = c("tea", "orch", "cash"))
+```
+
+
+Comparing the two:
+```{r}
+stargazer(reg3a, reg3b, type = "text", keep = c("tea", "orch", "cash"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
