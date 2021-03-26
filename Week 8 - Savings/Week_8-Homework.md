@@ -10,6 +10,7 @@ library(haven)
 library(stargazer)
 library(fastDummies)
 library(broom)
+library(car)
 ```
 
 ``` r
@@ -45,9 +46,9 @@ Question 4
 Using the coefficients estimated in the regression for Table 3, Column
 1, Paxson constructs a predicted value for permanent income as follows.
 She multiples the permanent characteristics by their respective
-coefficients, and adds them up to form *incperm* (see equation 2 on page
-17 of the paper.) Generate the variable *incperm*. What is the standard
-deviation of *incperm*?
+coefficients, and adds them up to form **incperm** (see equation 2 on
+page 17 of the paper.) Generate the variable **incperm**. What is the
+standard deviation of **incperm**?
 
 **R Hint: You can store the *summary()* of a linear model, then use
 *coef()* to generate a table of coefficients. To get a specific
@@ -211,7 +212,7 @@ sd(paxson$incperm)
 Question 6
 ----------
 
-What is the standard deviation of *inctrans*?
+What is the standard deviation of **inctrans**?
 
 ### Answer
 
@@ -247,9 +248,9 @@ sd(paxson$inctrans)
 Question 7
 ----------
 
-Paxson also has a category called unexplained income, defined as *inc –
-incperm – inctrans*. Form this variable and call it *incunexp.* What is
-the standard deviation of *incunexp*?
+Paxson also has a category called unexplained income, defined as **inc –
+incperm – inctrans**. Form this variable and call it **incunexp.** What
+is the standard deviation of **incunexp**?
 
 ### Answer
 
@@ -261,3 +262,135 @@ sd(paxson$incunexp)
 ```
 
     ## [1] 1258.259
+
+Question 8
+----------
+
+You will now run a regression to estimate the effect of income on
+savings. Use the variable **save2** as your measure of savings. Include
+the variables that you included in the matrix for the final regression
+(see the explanation to question 4 above.) What do you estimate for the
+marginal propensity to save out of each additional dollar of transitory
+income (i.e. **inctrans**)?
+
+### Answer
+
+``` r
+save2reg <- lm(
+  save2 ~ incperm + inctrans + incunexp + p0to5 + p6to11 + p12to17 + p18to64 +
+    p65 + sd1 + sd2 + sd3 + sd4 + factor(year), data = paxson
+)
+
+stargazer(save2reg, type = "text")
+```
+
+    ## 
+    ## ===============================================
+    ##                         Dependent variable:    
+    ##                     ---------------------------
+    ##                                save2           
+    ## -----------------------------------------------
+    ## incperm                      0.440***          
+    ##                               (0.049)          
+    ##                                                
+    ## inctrans                     0.804***          
+    ##                               (0.163)          
+    ##                                                
+    ## incunexp                     0.693***          
+    ##                               (0.023)          
+    ##                                                
+    ## p0to5                         -52.854          
+    ##                              (34.537)          
+    ##                                                
+    ## p6to11                         7.832           
+    ##                              (29.497)          
+    ##                                                
+    ## p12to17                       -49.733          
+    ##                              (33.880)          
+    ##                                                
+    ## p18to64                       -38.812          
+    ##                              (37.248)          
+    ##                                                
+    ## p65                          -122.774*         
+    ##                              (64.008)          
+    ##                                                
+    ## sd1                            1.738           
+    ##                               (2.958)          
+    ##                                                
+    ## sd2                           -3.075*          
+    ##                               (1.588)          
+    ##                                                
+    ## sd3                           4.007*           
+    ##                               (2.177)          
+    ##                                                
+    ## sd4                           3.473*           
+    ##                               (2.037)          
+    ##                                                
+    ## factor(year)81                -69.835          
+    ##                              (82.729)          
+    ##                                                
+    ## factor(year)86              -288.071**         
+    ##                              (137.386)         
+    ##                                                
+    ## Constant                   -1,694.077***       
+    ##                              (435.163)         
+    ##                                                
+    ## -----------------------------------------------
+    ## Observations                   4,855           
+    ## R2                             0.187           
+    ## Adjusted R2                    0.184           
+    ## Residual Std. Error    2,008.196 (df = 4840)   
+    ## F Statistic          79.391*** (df = 14; 4840) 
+    ## ===============================================
+    ## Note:               *p<0.1; **p<0.05; ***p<0.01
+
+Hence, the marginal propensity to save out of transitory income is
+0.804. This is the same result as in Table 4 in the paper.
+
+Question 9
+----------
+
+What do you estimate for the marginal propensity to save out of each
+additional dollar of permanent income (i.e. **incperm**)?
+
+### Answer
+
+From the regression in Question 8, the MPS for permanent income is
+0.440.
+
+Question 10
+-----------
+
+Test the null hypothesis that the marginal propensity to save out of
+each dollar of transitory income from question 8 equals the marginal
+propensity to save out of each dollar of permanent income from question
+9. Can we reject the null hypothesis at 95% significance level?
+
+*R Hint: Use the **linearHypothesis()** command from the “car” library,
+which you were asked to install in the explanation to question 3 above.
+Note that testing whether two coefficients are equal is equivalent to
+testing whether one minus the other equals 0.*
+
+### Answer
+
+``` r
+linearHypothesis(save2reg, "incperm = inctrans")
+```
+
+    ## Linear hypothesis test
+    ## 
+    ## Hypothesis:
+    ## incperm - inctrans = 0
+    ## 
+    ## Model 1: restricted model
+    ## Model 2: save2 ~ incperm + inctrans + incunexp + p0to5 + p6to11 + p12to17 + 
+    ##     p18to64 + p65 + sd1 + sd2 + sd3 + sd4 + factor(year)
+    ## 
+    ##   Res.Df        RSS Df Sum of Sq      F  Pr(>F)  
+    ## 1   4841 1.9538e+10                              
+    ## 2   4840 1.9519e+10  1  19460266 4.8254 0.02809 *
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Since the p-value is 0.028 which is less than 0.05, we reject the
+equality of their coefficients at the 95 percent significance level.
