@@ -50,7 +50,7 @@ paxson4reg <- paxson %>%
 
 # Run the regression
 reginc <- lm( inc ~ ., data = paxson4reg )  
-stargazer(reginc, type = "text", keep = "^(region)") # ??
+stargazer(reginc, type = "text", keep = "^[^(reg._)]")
 ```
 
 Let's use the `tidy()` command from the package `broom` to extract the coefficients of the above regression.
