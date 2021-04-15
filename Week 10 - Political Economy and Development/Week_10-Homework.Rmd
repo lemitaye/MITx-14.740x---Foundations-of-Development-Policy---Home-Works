@@ -29,7 +29,7 @@ mita_cluster_regs <- function(vars, cutoff) {
   require(multiwayvcov, quietly = TRUE)
   require(lmtest, quietly = TRUE)
 
-  # Run OlS without clustering 
+  # Run OLS without clustering 
   if (all(vars == c("x", "y"))) {
     mitareg <- lm(
       formula = lhhequiv ~ pothuan_mita + poly(x, 3, raw = TRUE) +
@@ -62,38 +62,8 @@ mita_cluster_regs <- function(vars, cutoff) {
 }
 ```
 
-Now, we are ready to answer Questions 3-8.
-
-## Question 3
-
-What is the coefficient estimate for Mita on the regression using 100km as the relevant cutoff? (Please input your answer to 3 decimal places).
-
-## Question 4
-
-Is this result significant at the 5% level?
-
-## Question 5
-
-What is the coefficient estimate for Mita on the regression using 75km as the relevant cutoff? (Please input your answer to 3 decimal places).
-
-## Question 6
-
-Is this result significant at the 5% level?
-
-## Question 7
-
-What is the coefficient estimate for Mita on the regression using 50km as the relevant cutoff? (Please input your answer to 3 decimal places).
-
-## Question 8
-
-Is this result significant at the 5% level?
-
----
-
-## Answers
-
 Let's run the regressions.
-```{r}
+```{r message=FALSE}
 xy_100 <- mita_cluster_regs(c("x", "y"), 100)
 xy_75 <- mita_cluster_regs(c("x", "y"), 75)
 xy_50 <- mita_cluster_regs(c("x", "y"), 50)
@@ -103,12 +73,142 @@ We summarize the results together in the following table.
 ```{r warning=FALSE}
 stargazer(xy_100, xy_75, xy_50,
   type = "text",
-  keep = "pothuan_mita"#, keep.stat = c("rsq", "n")
+  keep = "pothuan_mita",
+  title = "Cubic Polynomial in Latitude and Longitude",
+  column.labels = c("<100 km", "<75 km", "<50 km"),
+  style = "aer"
 )
 ```
 
 As can be seen, all coefficients, corresponding to the different cutoff values,
 are statistically insignificant at the 5% level.
+
+## Question 3
+
+What is the coefficient estimate for Mita on the regression using 100km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+### Answer
+
+`-0.284`
+
+## Question 4
+
+Is this result significant at the 5% level?
+
+### Answer
+
+No.
+
+## Question 5
+
+What is the coefficient estimate for Mita on the regression using 75km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+### Answer
+
+`-0.216`
+
+## Question 6
+
+Is this result significant at the 5% level?
+
+### Answer
+
+No
+
+## Question 7
+
+What is the coefficient estimate for Mita on the regression using 50km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+### Answer
+
+`-0.331`
+
+## Question 8
+
+Is this result significant at the 5% level?
+
+### Answer
+
+No
+
+---
+
+Run the same regressions as before, but instead of polynomial terms in longitude and latitude, use a cubic polynomial in distance to Potosi dpot. That is, include the first, second and third powers of this variable in the regressions. Again, cluster the standard errors by district and run the regression in 3 ways: first, for observations where the distance to Mita boundary (d_bnd) is less than 100km, next when it is less than 75km, and lastly when it is less than 50km.
+
+---
+
+Let's run the corresponding regressions with `dpot` as the running variable.
+```{r}
+dpot_100 <- mita_cluster_regs("dpot", 100)
+dpot_75 <- mita_cluster_regs("dpot", 75)
+dpot_50 <- mita_cluster_regs("dpot", 50)
+```
+
+The following table summarizes the relevant results.
+
+
+## Question 9
+
+What is the coefficient estimate for Mita on the regression using 100km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+```{r warning=FALSE}
+stargazer(dpot_100, dpot_75, dpot_50, type = "text", 
+          keep = "pothuan_mita",
+          title = "Cubic Polynomial in Distance to Potosi",
+          column.labels = c("<100 km", "<75 km", "<50 km"),
+          style = "aer")
+```
+
+All results are significant at the 1% (hence, at the 5%) level.
+
+## Question 9
+
+What is the coefficient estimate for Mita on the regression using 100km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+### Answer
+
+`-0.337`
+
+## Question 10
+
+Is this result significant at the 5% level?
+
+### Answer
+
+Yes
+
+## Question 11
+
+What is the coefficient estimate for Mita on the regression using 75km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+### Answer
+
+`-0.307`
+
+## Question 12
+
+Is this result significant at the 5% level?
+
+### Answer
+
+Yes
+
+## Question 13
+
+What is the coefficient estimate for Mita on the regression using 50km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+### Answer
+
+`-0.329`
+
+## Question 14
+
+Is this result significant at the 5% level?
+
+### Answer
+
+Yes
+
 
 
 
