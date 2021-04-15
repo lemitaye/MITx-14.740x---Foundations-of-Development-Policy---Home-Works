@@ -1,0 +1,162 @@
+---
+title: "Week 10 Homework"
+author: "Lemi Daba"
+date: "4/15/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Load required packages
+library(tidyverse)
+library(stargazer)
+```
+
+```{r message=FALSE}
+# Load the data:
+mitadata <- read_csv("mitaData_corrected.csv")
+mitadata
+```
+
+The following function enables us to run regressions with clustered standard 
+errors for different running variables and different cutoff points. The packages
+`lmtest` and `multiwayvcov` need to be installed first to define and use this function.
+```{r}
+mita_cluster_regs <- function(vars, cutoff) {
+  require(multiwayvcov, quietly = TRUE)
+  require(lmtest, quietly = TRUE)
+
+  # Run OlS without clustering 
+  if (all(vars == c("x", "y"))) {
+    mitareg <- lm(
+      formula = lhhequiv ~ pothuan_mita + poly(x, 3, raw = TRUE) +
+        poly(y, 3, raw = TRUE) + I(x * y) + I((x^2) * y) + I(x * (y^2)) +
+        elv_sh + slope + infants + children + adults + bfe4_1 + bfe4_2 + bfe4_3,
+      data = mitadata,
+      subset = (d_bnd < cutoff)
+    )
+  } else if (vars == "dpot") {
+    mitareg <- lm(
+      formula = lhhequiv ~ pothuan_mita + poly(dpot, 3, raw = TRUE) +
+        elv_sh + slope + infants + children + adults + bfe4_1 + bfe4_2 + bfe4_3,
+      data = mitadata,
+      subset = (d_bnd < cutoff)
+    )
+  } else {
+    stop('Enter either `c("x", "y")` or `"dpot"` for `vars` ', call. = FALSE
+    )
+  }
+
+  # Get the clustered Variance-covariance matrix:
+  mita.vcovCL <- cluster.vcov(
+    mitareg,
+    mitadata %>% filter(d_bnd < cutoff) %>% select(district)
+  )
+
+  # Return the result with clustered standard errors:
+  res <- coeftest(mitareg, mita.vcovCL)
+  return(res)
+}
+```
+
+Now, we are ready to answer Questions 3-8.
+
+## Question 3
+
+What is the coefficient estimate for Mita on the regression using 100km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+## Question 4
+
+Is this result significant at the 5% level?
+
+## Question 5
+
+What is the coefficient estimate for Mita on the regression using 75km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+## Question 6
+
+Is this result significant at the 5% level?
+
+## Question 7
+
+What is the coefficient estimate for Mita on the regression using 50km as the relevant cutoff? (Please input your answer to 3 decimal places).
+
+## Question 8
+
+Is this result significant at the 5% level?
+
+---
+
+## Answers
+
+Let's run the regressions.
+```{r}
+xy_100 <- mita_cluster_regs(c("x", "y"), 100)
+xy_75 <- mita_cluster_regs(c("x", "y"), 75)
+xy_50 <- mita_cluster_regs(c("x", "y"), 50)
+```
+
+We summarize the results together in the following table.
+```{r warning=FALSE}
+stargazer(xy_100, xy_75, xy_50,
+  type = "text",
+  keep = "pothuan_mita"#, keep.stat = c("rsq", "n")
+)
+```
+
+As can be seen, all coefficients, corresponding to the different cutoff values,
+are statistically insignificant at the 5% level.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
